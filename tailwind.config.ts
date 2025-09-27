@@ -47,16 +47,28 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        // Crypto-specific colors
+        crypto: {
+          primary: "hsl(var(--crypto-primary))",
+          secondary: "hsl(var(--crypto-secondary))",
+          accent: "hsl(var(--crypto-accent))",
+          warning: "hsl(var(--crypto-warning))",
+          success: "hsl(var(--crypto-success))",
         },
+      },
+      backgroundImage: {
+        'gradient-primary': 'var(--gradient-primary)',
+        'gradient-hero': 'var(--gradient-hero)',
+        'gradient-card': 'var(--gradient-card)',
+      },
+      boxShadow: {
+        'crypto': 'var(--shadow-crypto)',
+        'glow': 'var(--shadow-glow)',
+        'card': 'var(--shadow-card)',
+      },
+      transitionTimingFunction: {
+        'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
+        'bounce': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
       },
       borderRadius: {
         lg: "var(--radius)",
