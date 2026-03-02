@@ -27,14 +27,17 @@ const CARD_WIDTH = (CONTENT_WIDTH - CARD_GAP) / 2;
 const CARD_HEIGHT = 130;
 const CARD_RADIUS = 12;
 
+// ── Logo paths ─────────────────────────────────────────
+const LOGOS_DIR = path.join(process.cwd(), 'assets', 'logos');
+
 // ── Account Data ───────────────────────────────────────
 const accounts = [
-  { name: 'MTN MoMo', type: 'Mobile Money', balance: 3700000, color: '#FFCC00', initials: 'M' },
-  { name: 'Orange Money', type: 'Mobile Money', balance: 3000000, color: '#FF6600', initials: 'O' },
-  { name: 'UBA Cameroun', type: 'Banque', balance: 3489450, color: '#E31837', initials: 'U' },
-  { name: 'Afriland First Bank', type: 'Banque', balance: 18360220, color: '#8B0000', initials: 'A' },
-  { name: 'Ecobank Cameroun', type: 'Banque', balance: 0, color: '#0066B3', initials: 'E' },
-  { name: 'CCA-Bank', type: 'Banque', balance: 0, color: '#6A0DAD', initials: 'C' },
+  { name: 'MTN MoMo', type: 'Mobile Money', balance: 3700000, color: '#FFCC00', logo: path.join(LOGOS_DIR, 'mtn.png') },
+  { name: 'Orange Money', type: 'Mobile Money', balance: 3000000, color: '#FF6600', logo: path.join(LOGOS_DIR, 'orange-money.png') },
+  { name: 'UBA Cameroon', type: 'Bank', balance: 3489450, color: '#E31837', logo: path.join(LOGOS_DIR, 'uba.png') },
+  { name: 'Afriland First Bank', type: 'Bank', balance: 18360220, color: '#8B0000', logo: path.join(LOGOS_DIR, 'afriland.jpg') },
+  { name: 'Ecobank Cameroon', type: 'Bank', balance: 0, color: '#0066B3', logo: path.join(LOGOS_DIR, 'ecobank.png') },
+  { name: 'CCA-Bank', type: 'Bank', balance: 0, color: '#6A0DAD', logo: path.join(LOGOS_DIR, 'cca-bank.jpg') },
 ];
 
 const TOTAL = accounts.reduce((s, a) => s + a.balance, 0);
@@ -55,11 +58,6 @@ function lerpColor(c1, c2, t) {
   const [r1, g1, b1] = hexToRgb(c1);
   const [r2, g2, b2] = hexToRgb(c2);
   return rgbToHex(r1 + (r2 - r1) * t, g1 + (g2 - g1) * t, b1 + (b2 - b1) * t);
-}
-
-function isLight(hex) {
-  const [r, g, b] = hexToRgb(hex);
-  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5;
 }
 
 function formatXAF(n) {
@@ -112,10 +110,10 @@ function drawBackground(doc) {
 function drawHeader(doc) {
   // Title
   doc.font('Helvetica-Bold').fontSize(24).fillColor(TEXT_WHITE);
-  doc.text('SOLDE DE MES COMPTES', MARGIN, 44, { width: CONTENT_WIDTH, align: 'center' });
+  doc.text('MY ACCOUNT BALANCES', MARGIN, 44, { width: CONTENT_WIDTH, align: 'center' });
 
   // Date
-  const dateStr = 'Situation au 02 mars 2026';
+  const dateStr = 'As of March 02, 2026';
   doc.font('Helvetica').fontSize(11).fillColor(TEXT_MUTED);
   doc.text(dateStr, MARGIN, 76, { width: CONTENT_WIDTH, align: 'center' });
 
@@ -134,18 +132,35 @@ function drawAccountCard(doc, account, x, y) {
   const accentColor = isZero ? lerpColor(account.color, '#000000', 0.5) : account.color;
   fillRoundedRect(doc, x + 8, y + 14, 3, CARD_HEIGHT - 28, 1.5, accentColor);
 
-  // Logo circle
-  const cx = x + 38;
-  const cy = y + 40;
-  const r = 18;
-  const circleBg = isZero ? lerpColor(account.color, '#000000', 0.4) : account.color;
-  doc.circle(cx, cy, r).fill(circleBg);
+  // Logo image (fit into a 32x32 area, centered in original circle zone)
+  const logoSize = 32;
+  const logoX = x + 22;
+  const logoY = y + 24;
 
-  // Logo letter
-  const letterColor = isLight(account.color) ? '#000000' : '#FFFFFF';
-  doc.font('Helvetica-Bold').fontSize(18).fillColor(letterColor);
-  const lw = doc.widthOfString(account.initials);
-  doc.text(account.initials, cx - lw / 2, cy - 7, { lineBreak: false });
+  try {
+    if (fs.existsSync(account.logo)) {
+      // White circle background for logo
+      const cx = logoX + logoSize / 2;
+      const cy = logoY + logoSize / 2;
+      doc.circle(cx, cy, logoSize / 2 + 2).fill('#FFFFFF');
+
+      // Clip to circle and draw logo
+      doc.save();
+      doc.circle(cx, cy, logoSize / 2).clip();
+      doc.image(account.logo, logoX, logoY, { width: logoSize, height: logoSize, fit: [logoSize, logoSize], align: 'center', valign: 'center' });
+      doc.restore();
+    }
+  } catch {
+    // Fallback: draw colored circle with initial
+    const cx = x + 38;
+    const cy = y + 40;
+    const circleBg = isZero ? lerpColor(account.color, '#000000', 0.4) : account.color;
+    doc.circle(cx, cy, 18).fill(circleBg);
+    doc.font('Helvetica-Bold').fontSize(18).fillColor('#FFFFFF');
+    const initial = account.name.charAt(0);
+    const lw = doc.widthOfString(initial);
+    doc.text(initial, cx - lw / 2, cy - 7, { lineBreak: false });
+  }
 
   // Account name
   doc.font('Helvetica-Bold').fontSize(13).fillColor(isZero ? TEXT_DIMMED : TEXT_WHITE);
@@ -155,7 +170,7 @@ function drawAccountCard(doc, account, x, y) {
   const isMobile = account.type === 'Mobile Money';
   const badgeBg = isMobile ? '#1E3A2F' : '#1E2A3A';
   const badgeTextColor = isMobile ? '#4ADE80' : '#60A5FA';
-  const badgeLabel = isMobile ? 'Mobile Money' : 'Banque';
+  const badgeLabel = isMobile ? 'Mobile Money' : 'Bank';
 
   doc.font('Helvetica').fontSize(8);
   const btw = doc.widthOfString(badgeLabel);
@@ -195,9 +210,9 @@ function drawTotalSection(doc, startY) {
   // Inner glow effect (subtle green-tinted top border)
   fillRoundedRect(doc, MARGIN + 1, cardY + 1, CONTENT_WIDTH - 2, 3, CARD_RADIUS, lerpColor(GREEN_ACCENT, '#111827', 0.7));
 
-  // "SOLDE TOTAL" label
+  // "TOTAL BALANCE" label
   doc.font('Helvetica').fontSize(12).fillColor(TEXT_MUTED);
-  doc.text('SOLDE TOTAL', MARGIN, cardY + 24, { width: CONTENT_WIDTH, align: 'center' });
+  doc.text('TOTAL BALANCE', MARGIN, cardY + 24, { width: CONTENT_WIDTH, align: 'center' });
 
   // Total amount
   const totalStr = formatXAF(TOTAL);
@@ -216,7 +231,7 @@ function drawTotalSection(doc, startY) {
 
 function drawFooter(doc) {
   doc.font('Helvetica').fontSize(8).fillColor(TEXT_VERY_DIM);
-  doc.text('Document genere automatiquement  -  ethy-keeper  -  02/03/2026', MARGIN, PAGE_HEIGHT - 30, {
+  doc.text('Automatically generated document  —  ethy-keeper  —  03/02/2026', MARGIN, PAGE_HEIGHT - 30, {
     width: CONTENT_WIDTH,
     align: 'center',
   });
@@ -233,9 +248,9 @@ function generatePDF() {
     size: 'A4',
     margin: 0,
     info: {
-      Title: 'Solde de mes comptes',
+      Title: 'My Account Balances',
       Author: 'ethy-keeper',
-      Subject: 'Tableau de bord des soldes bancaires',
+      Subject: 'Bank Account Balance Dashboard',
       CreationDate: new Date(),
     },
   });
@@ -270,7 +285,7 @@ function generatePDF() {
   doc.end();
 
   stream.on('finish', () => {
-    console.log(`\u2705 PDF g\u00e9n\u00e9r\u00e9 avec succ\u00e8s : ${outputPath}`);
+    console.log(`✅ PDF generated successfully: ${outputPath}`);
   });
 }
 
