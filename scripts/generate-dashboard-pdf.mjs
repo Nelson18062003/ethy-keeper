@@ -27,6 +27,11 @@ const CARD_WIDTH = (CONTENT_WIDTH - CARD_GAP) / 2;
 const CARD_HEIGHT = 130;
 const CARD_RADIUS = 12;
 
+// ── Font paths ────────────────────────────────────────
+const FONTS_DIR = path.join(process.cwd(), 'assets', 'fonts');
+const FONT_REGULAR = path.join(FONTS_DIR, 'LibreBaskerville-Regular.ttf');
+const FONT_BOLD = path.join(FONTS_DIR, 'LibreBaskerville-Bold.ttf');
+
 // ── Logo paths ─────────────────────────────────────────
 const LOGOS_DIR = path.join(process.cwd(), 'assets', 'logos');
 
@@ -35,7 +40,7 @@ const accounts = [
   { name: 'MTN MoMo', type: 'Mobile Money', balance: 500000, color: '#FFCC00', logo: path.join(LOGOS_DIR, 'mtn.png') },
   { name: 'Orange Money', type: 'Mobile Money', balance: 2000000, color: '#FF6600', logo: path.join(LOGOS_DIR, 'orange-money.png') },
   { name: 'UBA Cameroon', type: 'Bank', balance: 7685790, color: '#E31837', logo: path.join(LOGOS_DIR, 'uba.png') },
-  { name: 'Afriland First Bank', type: 'Bank', balance: 0, color: '#8B0000', logo: path.join(LOGOS_DIR, 'afriland.jpg') },
+  { name: 'Afriland First Bank', type: 'Bank', balance: 0, color: '#8B0000', logo: path.join(LOGOS_DIR, 'afriland-icon.png') },
   { name: 'Ecobank Cameroon', type: 'Bank', balance: 0, color: '#0066B3', logo: path.join(LOGOS_DIR, 'ecobank.png') },
   { name: 'CCA-Bank', type: 'Bank', balance: 0, color: '#6A0DAD', logo: path.join(LOGOS_DIR, 'cca-bank.jpg') },
 ];
@@ -109,12 +114,12 @@ function drawBackground(doc) {
 
 function drawHeader(doc) {
   // Title
-  doc.font('Helvetica-Bold').fontSize(24).fillColor(TEXT_WHITE);
+  doc.font('Baskerville-Bold').fontSize(24).fillColor(TEXT_WHITE);
   doc.text('MY ACCOUNT BALANCES', MARGIN, 44, { width: CONTENT_WIDTH, align: 'center' });
 
   // Date
   const dateStr = 'As of March 06, 2026';
-  doc.font('Helvetica').fontSize(11).fillColor(TEXT_MUTED);
+  doc.font('Baskerville').fontSize(11).fillColor(TEXT_MUTED);
   doc.text(dateStr, MARGIN, 76, { width: CONTENT_WIDTH, align: 'center' });
 
   // Gradient separator
@@ -156,14 +161,14 @@ function drawAccountCard(doc, account, x, y) {
     const cy = y + 40;
     const circleBg = isZero ? lerpColor(account.color, '#000000', 0.4) : account.color;
     doc.circle(cx, cy, 18).fill(circleBg);
-    doc.font('Helvetica-Bold').fontSize(18).fillColor('#FFFFFF');
+    doc.font('Baskerville-Bold').fontSize(18).fillColor('#FFFFFF');
     const initial = account.name.charAt(0);
     const lw = doc.widthOfString(initial);
     doc.text(initial, cx - lw / 2, cy - 7, { lineBreak: false });
   }
 
   // Account name
-  doc.font('Helvetica-Bold').fontSize(13).fillColor(isZero ? TEXT_DIMMED : TEXT_WHITE);
+  doc.font('Baskerville-Bold').fontSize(13).fillColor(isZero ? TEXT_DIMMED : TEXT_WHITE);
   doc.text(account.name, x + 64, y + 20, { width: CARD_WIDTH - 76, lineBreak: false });
 
   // Type badge
@@ -172,7 +177,7 @@ function drawAccountCard(doc, account, x, y) {
   const badgeTextColor = isMobile ? '#4ADE80' : '#60A5FA';
   const badgeLabel = isMobile ? 'Mobile Money' : 'Bank';
 
-  doc.font('Helvetica').fontSize(8);
+  doc.font('Baskerville').fontSize(8);
   const btw = doc.widthOfString(badgeLabel);
   const bw = btw + 24;
   const bh = 16;
@@ -181,19 +186,19 @@ function drawAccountCard(doc, account, x, y) {
   fillRoundedRect(doc, bx, by, bw, bh, 4, badgeBg);
   // Small dot indicator
   doc.circle(bx + 8, by + 8, 2.5).fill(badgeTextColor);
-  doc.font('Helvetica').fontSize(8).fillColor(badgeTextColor);
+  doc.font('Baskerville').fontSize(8).fillColor(badgeTextColor);
   doc.text(badgeLabel, bx + 15, by + 4, { lineBreak: false });
 
   // Balance
   const balStr = formatXAF(account.balance);
   const balY = y + CARD_HEIGHT - 34;
-  doc.font('Helvetica-Bold').fontSize(18).fillColor(isZero ? TEXT_DIMMED : TEXT_WHITE);
+  doc.font('Baskerville-Bold').fontSize(18).fillColor(isZero ? TEXT_DIMMED : TEXT_WHITE);
   doc.text(balStr, x + 20, balY, { lineBreak: false, continued: false });
 
   // "XAF" suffix
-  doc.font('Helvetica-Bold').fontSize(18);
+  doc.font('Baskerville-Bold').fontSize(18);
   const balWidth = doc.widthOfString(balStr);
-  doc.font('Helvetica').fontSize(11).fillColor(isZero ? TEXT_VERY_DIM : TEXT_MUTED);
+  doc.font('Baskerville').fontSize(11).fillColor(isZero ? TEXT_VERY_DIM : TEXT_MUTED);
   doc.text(' XAF', x + 20 + balWidth + 4, balY + 3, { lineBreak: false });
 }
 
@@ -211,16 +216,16 @@ function drawTotalSection(doc, startY) {
   fillRoundedRect(doc, MARGIN + 1, cardY + 1, CONTENT_WIDTH - 2, 3, CARD_RADIUS, lerpColor(GREEN_ACCENT, '#111827', 0.7));
 
   // "TOTAL BALANCE" label
-  doc.font('Helvetica').fontSize(12).fillColor(TEXT_MUTED);
+  doc.font('Baskerville').fontSize(12).fillColor(TEXT_MUTED);
   doc.text('TOTAL BALANCE', MARGIN, cardY + 24, { width: CONTENT_WIDTH, align: 'center' });
 
   // Total amount
   const totalStr = formatXAF(TOTAL);
-  doc.font('Helvetica-Bold').fontSize(32).fillColor(TEXT_WHITE);
+  doc.font('Baskerville-Bold').fontSize(32).fillColor(TEXT_WHITE);
   doc.text(totalStr, MARGIN, cardY + 48, { width: CONTENT_WIDTH, align: 'center', continued: false });
 
   // "XAF" below
-  doc.font('Helvetica').fontSize(14).fillColor(GREEN_ACCENT);
+  doc.font('Baskerville').fontSize(14).fillColor(GREEN_ACCENT);
   doc.text('XAF', MARGIN, cardY + 86, { width: CONTENT_WIDTH, align: 'center' });
 
   // Green underline accent
@@ -230,7 +235,7 @@ function drawTotalSection(doc, startY) {
 }
 
 function drawFooter(doc) {
-  doc.font('Helvetica').fontSize(8).fillColor(TEXT_VERY_DIM);
+  doc.font('Baskerville').fontSize(8).fillColor(TEXT_VERY_DIM);
   doc.text('Automatically generated document  —  ethy-keeper  —  06/03/2026', MARGIN, PAGE_HEIGHT - 30, {
     width: CONTENT_WIDTH,
     align: 'center',
@@ -254,6 +259,10 @@ function generatePDF() {
       CreationDate: new Date(),
     },
   });
+
+  // Register custom fonts
+  doc.registerFont('Baskerville', FONT_REGULAR);
+  doc.registerFont('Baskerville-Bold', FONT_BOLD);
 
   const stream = fs.createWriteStream(outputPath);
   doc.pipe(stream);
