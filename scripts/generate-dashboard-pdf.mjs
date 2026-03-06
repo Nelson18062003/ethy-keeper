@@ -32,10 +32,10 @@ const LOGOS_DIR = path.join(process.cwd(), 'assets', 'logos');
 
 // ── Account Data ───────────────────────────────────────
 const accounts = [
-  { name: 'MTN MoMo', type: 'Mobile Money', balance: 3700000, color: '#FFCC00', logo: path.join(LOGOS_DIR, 'mtn.png') },
-  { name: 'Orange Money', type: 'Mobile Money', balance: 3000000, color: '#FF6600', logo: path.join(LOGOS_DIR, 'orange-money.png') },
-  { name: 'UBA Cameroon', type: 'Bank', balance: 3489450, color: '#E31837', logo: path.join(LOGOS_DIR, 'uba.png') },
-  { name: 'Afriland First Bank', type: 'Bank', balance: 18360220, color: '#8B0000', logo: path.join(LOGOS_DIR, 'afriland.jpg') },
+  { name: 'MTN MoMo', type: 'Mobile Money', balance: 500000, color: '#FFCC00', logo: path.join(LOGOS_DIR, 'mtn.png') },
+  { name: 'Orange Money', type: 'Mobile Money', balance: 2000000, color: '#FF6600', logo: path.join(LOGOS_DIR, 'orange-money.png') },
+  { name: 'UBA Cameroon', type: 'Bank', balance: 7685790, color: '#E31837', logo: path.join(LOGOS_DIR, 'uba.png') },
+  { name: 'Afriland First Bank', type: 'Bank', balance: 0, color: '#8B0000', logo: path.join(LOGOS_DIR, 'afriland.jpg') },
   { name: 'Ecobank Cameroon', type: 'Bank', balance: 0, color: '#0066B3', logo: path.join(LOGOS_DIR, 'ecobank.png') },
   { name: 'CCA-Bank', type: 'Bank', balance: 0, color: '#6A0DAD', logo: path.join(LOGOS_DIR, 'cca-bank.jpg') },
 ];
@@ -113,7 +113,7 @@ function drawHeader(doc) {
   doc.text('MY ACCOUNT BALANCES', MARGIN, 44, { width: CONTENT_WIDTH, align: 'center' });
 
   // Date
-  const dateStr = 'As of March 02, 2026';
+  const dateStr = 'As of March 06, 2026';
   doc.font('Helvetica').fontSize(11).fillColor(TEXT_MUTED);
   doc.text(dateStr, MARGIN, 76, { width: CONTENT_WIDTH, align: 'center' });
 
@@ -231,7 +231,7 @@ function drawTotalSection(doc, startY) {
 
 function drawFooter(doc) {
   doc.font('Helvetica').fontSize(8).fillColor(TEXT_VERY_DIM);
-  doc.text('Automatically generated document  —  ethy-keeper  —  03/02/2026', MARGIN, PAGE_HEIGHT - 30, {
+  doc.text('Automatically generated document  —  ethy-keeper  —  06/03/2026', MARGIN, PAGE_HEIGHT - 30, {
     width: CONTENT_WIDTH,
     align: 'center',
   });
