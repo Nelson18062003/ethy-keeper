@@ -24,7 +24,7 @@ const MARGIN = 40;
 const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 const CARD_GAP = 16;
 const CARD_WIDTH = (CONTENT_WIDTH - CARD_GAP) / 2;
-const CARD_HEIGHT = 130;
+const CARD_HEIGHT = 140;
 const CARD_RADIUS = 12;
 
 // ── Font paths ────────────────────────────────────────
@@ -114,16 +114,16 @@ function drawBackground(doc) {
 
 function drawHeader(doc) {
   // Title
-  doc.font('Baskerville-Bold').fontSize(24).fillColor(TEXT_WHITE);
-  doc.text('MY ACCOUNT BALANCES', MARGIN, 44, { width: CONTENT_WIDTH, align: 'center' });
+  doc.font('Baskerville-Bold').fontSize(28).fillColor(TEXT_WHITE);
+  doc.text('MY ACCOUNT BALANCES', MARGIN, 40, { width: CONTENT_WIDTH, align: 'center' });
 
   // Date
   const dateStr = 'As of March 14, 2026';
-  doc.font('Baskerville').fontSize(11).fillColor(TEXT_MUTED);
+  doc.font('Baskerville').fontSize(13).fillColor(TEXT_MUTED);
   doc.text(dateStr, MARGIN, 76, { width: CONTENT_WIDTH, align: 'center' });
 
   // Gradient separator
-  drawGradientLine(doc, MARGIN, 98, CONTENT_WIDTH, 2, GRADIENT_START, GRADIENT_END);
+  drawGradientLine(doc, MARGIN, 100, CONTENT_WIDTH, 2, GRADIENT_START, GRADIENT_END);
 }
 
 function drawAccountCard(doc, account, x, y) {
@@ -137,39 +137,41 @@ function drawAccountCard(doc, account, x, y) {
   const accentColor = isZero ? lerpColor(account.color, '#000000', 0.5) : account.color;
   fillRoundedRect(doc, x + 8, y + 14, 3, CARD_HEIGHT - 28, 1.5, accentColor);
 
-  // Logo image (fit into a 32x32 area, centered in original circle zone)
-  const logoSize = 32;
-  const logoX = x + 22;
-  const logoY = y + 24;
+  // Logo image (fit into a 36x36 area, properly centered in circle)
+  const logoSize = 36;
+  const circleCx = x + 40;
+  const circleCy = y + 28 + logoSize / 2;
+  const circleR = logoSize / 2 + 3;
 
   try {
     if (fs.existsSync(account.logo)) {
       // White circle background for logo
-      const cx = logoX + logoSize / 2;
-      const cy = logoY + logoSize / 2;
-      doc.circle(cx, cy, logoSize / 2 + 2).fill('#FFFFFF');
+      doc.circle(circleCx, circleCy, circleR).fill('#FFFFFF');
 
-      // Clip to circle and draw logo
+      // Clip to circle and draw logo centered
       doc.save();
-      doc.circle(cx, cy, logoSize / 2).clip();
-      doc.image(account.logo, logoX, logoY, { width: logoSize, height: logoSize, fit: [logoSize, logoSize], align: 'center', valign: 'center' });
+      doc.circle(circleCx, circleCy, circleR - 1).clip();
+      doc.image(account.logo, circleCx - logoSize / 2, circleCy - logoSize / 2, {
+        fit: [logoSize, logoSize],
+        align: 'center',
+        valign: 'center',
+      });
       doc.restore();
     }
   } catch {
     // Fallback: draw colored circle with initial
-    const cx = x + 38;
-    const cy = y + 40;
     const circleBg = isZero ? lerpColor(account.color, '#000000', 0.4) : account.color;
-    doc.circle(cx, cy, 18).fill(circleBg);
+    doc.circle(circleCx, circleCy, circleR).fill(circleBg);
     doc.font('Baskerville-Bold').fontSize(18).fillColor('#FFFFFF');
     const initial = account.name.charAt(0);
     const lw = doc.widthOfString(initial);
-    doc.text(initial, cx - lw / 2, cy - 7, { lineBreak: false });
+    doc.text(initial, circleCx - lw / 2, circleCy - 7, { lineBreak: false });
   }
 
   // Account name
-  doc.font('Baskerville-Bold').fontSize(13).fillColor(isZero ? TEXT_DIMMED : TEXT_WHITE);
-  doc.text(account.name, x + 64, y + 20, { width: CARD_WIDTH - 76, lineBreak: false });
+  const textLeft = x + 68;
+  doc.font('Baskerville-Bold').fontSize(14).fillColor(isZero ? TEXT_DIMMED : TEXT_WHITE);
+  doc.text(account.name, textLeft, y + 22, { width: CARD_WIDTH - 80, lineBreak: false });
 
   // Type badge
   const isMobile = account.type === 'Mobile Money';
@@ -177,29 +179,29 @@ function drawAccountCard(doc, account, x, y) {
   const badgeTextColor = isMobile ? '#4ADE80' : '#60A5FA';
   const badgeLabel = isMobile ? 'Mobile Money' : 'Bank';
 
-  doc.font('Baskerville').fontSize(8);
+  doc.font('Baskerville').fontSize(9);
   const btw = doc.widthOfString(badgeLabel);
   const bw = btw + 24;
-  const bh = 16;
-  const bx = x + 64;
-  const by = y + 42;
+  const bh = 18;
+  const bx = textLeft;
+  const by = y + 44;
   fillRoundedRect(doc, bx, by, bw, bh, 4, badgeBg);
   // Small dot indicator
-  doc.circle(bx + 8, by + 8, 2.5).fill(badgeTextColor);
-  doc.font('Baskerville').fontSize(8).fillColor(badgeTextColor);
+  doc.circle(bx + 8, by + 9, 2.5).fill(badgeTextColor);
+  doc.font('Baskerville').fontSize(9).fillColor(badgeTextColor);
   doc.text(badgeLabel, bx + 15, by + 4, { lineBreak: false });
 
-  // Balance
+  // Balance (bigger font)
   const balStr = formatXAF(account.balance);
-  const balY = y + CARD_HEIGHT - 34;
-  doc.font('Baskerville-Bold').fontSize(18).fillColor(isZero ? TEXT_DIMMED : TEXT_WHITE);
+  const balY = y + CARD_HEIGHT - 38;
+  doc.font('Baskerville-Bold').fontSize(22).fillColor(isZero ? TEXT_DIMMED : TEXT_WHITE);
   doc.text(balStr, x + 20, balY, { lineBreak: false, continued: false });
 
   // "XAF" suffix
-  doc.font('Baskerville-Bold').fontSize(18);
+  doc.font('Baskerville-Bold').fontSize(22);
   const balWidth = doc.widthOfString(balStr);
-  doc.font('Baskerville').fontSize(11).fillColor(isZero ? TEXT_VERY_DIM : TEXT_MUTED);
-  doc.text(' XAF', x + 20 + balWidth + 4, balY + 3, { lineBreak: false });
+  doc.font('Baskerville').fontSize(13).fillColor(isZero ? TEXT_VERY_DIM : TEXT_MUTED);
+  doc.text(' XAF', x + 20 + balWidth + 4, balY + 4, { lineBreak: false });
 }
 
 function drawTotalSection(doc, startY) {
@@ -208,7 +210,7 @@ function drawTotalSection(doc, startY) {
 
   // Total card background
   const cardY = startY + 20;
-  const cardH = 120;
+  const cardH = 110;
   fillRoundedRect(doc, MARGIN, cardY, CONTENT_WIDTH, cardH, CARD_RADIUS, '#111827');
   strokeRoundedRect(doc, MARGIN, cardY, CONTENT_WIDTH, cardH, CARD_RADIUS, '#1F2937', 1);
 
@@ -216,22 +218,30 @@ function drawTotalSection(doc, startY) {
   fillRoundedRect(doc, MARGIN + 1, cardY + 1, CONTENT_WIDTH - 2, 3, CARD_RADIUS, lerpColor(GREEN_ACCENT, '#111827', 0.7));
 
   // "TOTAL BALANCE" label
-  doc.font('Baskerville').fontSize(12).fillColor(TEXT_MUTED);
-  doc.text('TOTAL BALANCE', MARGIN, cardY + 24, { width: CONTENT_WIDTH, align: 'center' });
+  doc.font('Baskerville').fontSize(13).fillColor(TEXT_MUTED);
+  doc.text('TOTAL BALANCE', MARGIN, cardY + 20, { width: CONTENT_WIDTH, align: 'center' });
 
-  // Total amount
+  // Total amount + XAF on the same line, centered
   const totalStr = formatXAF(TOTAL);
-  doc.font('Baskerville-Bold').fontSize(32).fillColor(TEXT_WHITE);
-  doc.text(totalStr, MARGIN, cardY + 48, { width: CONTENT_WIDTH, align: 'center', continued: false });
+  doc.font('Baskerville-Bold').fontSize(38);
+  const totalWidth = doc.widthOfString(totalStr);
+  doc.font('Baskerville-Bold').fontSize(20);
+  const xafWidth = doc.widthOfString(' XAF');
+  const fullWidth = totalWidth + xafWidth + 6;
+  const startX = (PAGE_WIDTH - fullWidth) / 2;
 
-  // "XAF" below
-  doc.font('Baskerville').fontSize(14).fillColor(GREEN_ACCENT);
-  doc.text('XAF', MARGIN, cardY + 86, { width: CONTENT_WIDTH, align: 'center' });
+  // Draw total amount
+  doc.font('Baskerville-Bold').fontSize(38).fillColor(TEXT_WHITE);
+  doc.text(totalStr, startX, cardY + 46, { lineBreak: false });
+
+  // Draw XAF next to the amount
+  doc.font('Baskerville-Bold').fontSize(20).fillColor(GREEN_ACCENT);
+  doc.text(' XAF', startX + totalWidth + 6, cardY + 58, { lineBreak: false });
 
   // Green underline accent
-  const ulW = 80;
+  const ulW = 90;
   const ulX = (PAGE_WIDTH - ulW) / 2;
-  fillRoundedRect(doc, ulX, cardY + cardH - 8, ulW, 3, 1.5, GREEN_ACCENT);
+  fillRoundedRect(doc, ulX, cardY + cardH - 10, ulW, 3, 1.5, GREEN_ACCENT);
 }
 
 function drawFooter(doc) {
