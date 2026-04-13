@@ -38,8 +38,8 @@ const LOGOS_DIR = path.join(process.cwd(), 'assets', 'logos');
 // ── Account Data ───────────────────────────────────────
 const accounts = [
   { name: 'MTN MoMo', type: 'Mobile Money', balance: 7000000, color: '#FFCC00', logo: path.join(LOGOS_DIR, 'mtn.png') },
-  { name: 'Orange Money', type: 'Mobile Money', balance: 200000, color: '#FF6600', logo: path.join(LOGOS_DIR, 'orange-money.png') },
-  { name: 'UBA Cameroon', type: 'Bank', balance: 6000000, color: '#E31837', logo: path.join(LOGOS_DIR, 'uba.png') },
+  { name: 'Orange Money', type: 'Mobile Money', balance: 1800000, color: '#FF6600', logo: path.join(LOGOS_DIR, 'orange-money.png') },
+  { name: 'UBA Cameroon', type: 'Bank', balance: 4200000, color: '#E31837', logo: path.join(LOGOS_DIR, 'uba.png') },
   { name: 'Afriland First Bank', type: 'Bank', balance: 4000000, color: '#8B0000', logo: path.join(LOGOS_DIR, 'afriland-icon.png') },
   { name: 'Ecobank Cameroon', type: 'Bank', balance: 0, color: '#0066B3', logo: path.join(LOGOS_DIR, 'ecobank.png') },
   { name: 'CCA-Bank', type: 'Bank', balance: 0, color: '#6A0DAD', logo: path.join(LOGOS_DIR, 'cca-bank.jpg') },
